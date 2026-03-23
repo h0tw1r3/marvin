@@ -1,7 +1,7 @@
-# 📘 AI Review Troubleshooting
+# 📘 marvin Troubleshooting
 
-This document describes common environment-related issues when running **ai-review**. All cases below are expected Git /
-CI behavior, not bugs in `ai-review`.
+This document describes common environment-related issues when running **marvin**. All cases below are expected Git /
+CI behavior, not bugs in `marvin`.
 
 ---
 
@@ -18,11 +18,11 @@ By default, Git escapes non-ASCII paths in diff output (`core.quotepath=true`).
 
 ### Solution
 
-`ai-review` [Docker image](./../../Dockerfile) sets this automatically:
+`marvin` [Docker image](./../../Dockerfile) sets this automatically:
 
 ```bash
 git config --global core.quotepath false
-````
+```
 
 If running outside Docker, make sure this option is enabled manually.
 
@@ -30,6 +30,7 @@ If running outside Docker, make sure this option is enabled manually.
 
 ## 🧩 `git diff` fails with exit code 128 (missing commits)
 
+<!-- pyml disable no-duplicate-heading -->
 ### Symptoms
 
 ```text
@@ -42,7 +43,7 @@ One of the compared commits is not present locally. This usually happens due to 
 
 ### Solution
 
-Fetch full Git history before running `ai-review`.
+Fetch full Git history before running `marvin`.
 
 #### GitHub Actions
 
@@ -64,6 +65,3 @@ Or manually:
 ```bash
 git fetch --unshallow
 ```
-
-
-

@@ -1,7 +1,7 @@
 # ===============================
-# AI Review — Azure DevOps Integration
+# marvin — Azure DevOps Integration
 # ===============================
-# Universal pipeline for running AI Review inside Azure Pipelines.
+# Universal pipeline for running marvin inside Azure Pipelines.
 # Can be launched manually with parameters for Pull Request, iteration, and command.
 #
 # Supported commands:
@@ -15,10 +15,10 @@
 #   - clear-summary
 #
 # Requirements:
-#   • Variable group "ai-review-secrets" with:
+#   • Variable group "marvin-secrets" with:
 #       - LLM__HTTP_CLIENT__API_TOKEN  (e.g., OpenAI API key)
 #       - VCS__HTTP_CLIENT__API_TOKEN  (Azure DevOps PAT with Code → Read & Write permissions)
-#   • Docker image: nikitafilonov/ai-review:latest
+#   • Docker image: ghcr.io/h0tw1r3/marvin:latest
 # ===============================
 
 trigger: none  # manual run from the UI
@@ -27,7 +27,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  - group: ai-review-secrets  # contains tokens and private keys
+  - group: marvin-secrets  # contains tokens and private keys
 
 parameters:
   - name: ORGANIZATION
@@ -37,12 +37,12 @@ parameters:
 
   - name: PROJECT
     type: string
-    default: 'test-ai-review'
+    default: 'test-marvin'
     displayName: 'Azure DevOps project'
 
   - name: REPOSITORY_ID
     type: string
-    default: 'ai-review-demo'
+    default: 'marvin-demo'
     displayName: 'Repository ID (name or GUID)'
 
   - name: PULL_REQUEST_ID
@@ -58,7 +58,7 @@ parameters:
   - name: COMMAND
     type: string
     default: 'run'
-    displayName: 'AI Review command'
+    displayName: 'marvin command'
     values:
       - run
       - run-inline
@@ -70,10 +70,10 @@ parameters:
       - clear-summary
 
 jobs:
-  - job: ai_review
-    displayName: "AI Review"
+  - job: marvin
+    displayName: "marvin"
     container:
-      image: nikitafilonov/ai-review:latest
+      image: ghcr.io/h0tw1r3/marvin:latest
 
     steps:
       - checkout: self
@@ -81,14 +81,14 @@ jobs:
         displayName: "Checkout repository (full history)"
 
       - script: |
-          echo "🚀 Running AI Review for PR ${{ parameters.PULL_REQUEST_ID }}..."
-          echo "🧠 Using command: ai-review ${{ parameters.COMMAND }}"
+          echo "🚀 Running marvin for PR ${{ parameters.PULL_REQUEST_ID }}..."
+          echo "🧠 Using command: marvin ${{ parameters.COMMAND }}"
           echo ""
           echo "🔧 Showing effective configuration..."
-          ai-review show-config
+          marvin show-config
           echo ""
           echo "🧩 Starting review..."
-          ai-review ${{ parameters.COMMAND }}
+          marvin ${{ parameters.COMMAND }}
         env:
           # ===============================
           # VCS (Azure DevOps context)
@@ -124,10 +124,10 @@ jobs:
           CORE__CONCURRENCY: "7"
           REVIEW__MODE: "FULL_FILE_DIFF"
           REVIEW__DRY_RUN: "false"
-          REVIEW__INLINE_TAG: "#ai-review-inline"
-          REVIEW__INLINE_REPLY_TAG: "#ai-review-inline-reply"
-          REVIEW__SUMMARY_TAG: "#ai-review-summary"
-          REVIEW__SUMMARY_REPLY_TAG: "#ai-review-summary-reply"
+          REVIEW__INLINE_TAG: "#marvin-inline"
+          REVIEW__INLINE_REPLY_TAG: "#marvin-inline-reply"
+          REVIEW__SUMMARY_TAG: "#marvin-summary"
+          REVIEW__SUMMARY_REPLY_TAG: "#marvin-summary-reply"
           REVIEW__CONTEXT_LINES: "10"
           REVIEW__REVIEW_ADDED_MARKER: " # added"
           REVIEW__REVIEW_REMOVED_MARKER: " # removed"
@@ -143,4 +143,4 @@ jobs:
           ARTIFACTS__LLM_ENABLED: "false"
           ARTIFACTS__VCS_ENABLED: "false"
 
-        displayName: "Run AI Review"
+        displayName: "Run marvin"

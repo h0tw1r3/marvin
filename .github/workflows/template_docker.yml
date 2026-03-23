@@ -1,0 +1,89 @@
+name: template - docker (build, publish)
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        default: ""
+      push:
+        type: boolean
+        default: false
+      python:
+        type: string
+        default: '3.12'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ${{ vars.DOCKER_REGISTRY != '' && vars.DOCKER_REGISTRY || 'ghcr.io' }}
+  REGISTRY_USERNAME: ${{ vars.DOCKER_USERNAME != '' && vars.DOCKER_USERNAME || github.actor }}
+  REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD != '' && secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
+  REPOSITORY: ${{ vars.DOCKER_REPOSITORY != '' && vars.DOCKER_REPOSITORY || github.repository }}
+
+jobs:
+  images:
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      fail-fast: true
+      matrix:
+        fips: [false, true]
+    name: image (fips=${{ matrix.fips }})
+    steps:
+      - if: inputs.push
+        name: Login to ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Variables
+        run: |
+          echo "IMAGE_TAG=${{ env.REGISTRY }}/${{ env.REPOSITORY }}${{ matrix.fips && '-fips' || '' }}:${{ inputs.tag }}" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        id: checkout_repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image
+        id: build_image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          push: false
+          provenance: ${{ contains(env.REGISTRY, 'docker') }}
+          tags: ${{ env.IMAGE_TAG }}
+          platforms: linux/amd64
+          build-args: |
+            PYTHON_VERSION=${{ inputs.python }}
+            ENABLE_FIPS=${{ matrix.fips }}
+
+      - if: inputs.push
+        name: Build all platforms and Push to ${{ env.REGISTRY }}/${{ env.REPOSITORY }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          provenance: ${{ contains(env.REGISTRY, 'docker') }}
+          tags: ${{ env.IMAGE_TAG }}
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            PYTHON_VERSION=${{ inputs.python }}
+            ENABLE_FIPS=${{ matrix.fips }}

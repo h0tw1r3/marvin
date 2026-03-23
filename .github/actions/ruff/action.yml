@@ -1,0 +1,24 @@
+name: Lint
+
+inputs:
+  python-version:
+    type: string
+    default: "3.12"
+    required: false
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Ruff
+      shell: bash
+      run: |
+        uv run ruff check

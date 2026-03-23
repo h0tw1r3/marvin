@@ -1,6 +1,6 @@
-# 📘 AI Review Hooks
+# 📘 marvin Hooks
 
-AI Review provides a **lightweight asynchronous hooks system** that lets you subscribe to internal lifecycle events.
+marvin provides a **lightweight asynchronous hooks system** that lets you subscribe to internal lifecycle events.
 
 Hooks allow you to:
 
@@ -15,7 +15,7 @@ review.
 
 ## 🧠 Lifecycle
 
-AI Review triggers hooks at key points in the review pipeline:
+marvin triggers hooks at key points in the review pipeline:
 
 | Stage                   | Hooks                                                                                                   |
 |-------------------------|---------------------------------------------------------------------------------------------------------|
@@ -38,9 +38,9 @@ Hooks are registered via decorators from the global hook instance:
 
 ```python
 # ./hooks.py
-from ai_review.services.cost.schema import CostReportSchema
-from ai_review.services.hook import hook
-from ai_review.services.review.internal.inline.schema import InlineCommentSchema
+from marvin.services.cost.schema import CostReportSchema
+from marvin.services.hook import hook
+from marvin.services.review.internal.inline.schema import InlineCommentSchema
 
 
 @hook.on_chat_start
@@ -151,8 +151,8 @@ You can collect timing and cost information using chat hooks:
 ```python
 import time
 
-from ai_review.services.cost.schema import CostReportSchema
-from ai_review.services.hook import hook
+from marvin.services.cost.schema import CostReportSchema
+from marvin.services.hook import hook
 
 
 @hook.on_chat_start
@@ -173,7 +173,7 @@ async def log_duration(result: str, report: CostReportSchema | None):
 
 ## ⚠️ Error Handling
 
-If a callback raises an exception, AI Review logs it safely:
+If a callback raises an exception, marvin logs it safely:
 
 ```text
 Error in ON_INLINE_COMMENT_COMPLETE hook: ValueError('...')

@@ -1,14 +1,14 @@
-# 📘 AI Review Prompts
+# 📘 marvin Prompts
 
-This folder contains **language-specific prompt templates** for AI Review. Each language has its own subfolder with
+This folder contains **language-specific prompt templates** for marvin. Each language has its own subfolder with
 inline and summary review instructions, separated by style (e.g. light, strict).
 
 Prompts extend the built-in system templates:
 
-- [default_system_agent.md](../../ai_review/prompts/default_system_agent.md)
-- [default_system_inline.md](../../ai_review/prompts/default_system_inline.md)
-- [default_system_summary.md](../../ai_review/prompts/default_system_summary.md)
-- [default_system_context.md](../../ai_review/prompts/default_system_context.md)
+- [default_system_agent.md](../../marvin/prompts/default_system_agent.md)
+- [default_system_inline.md](../../marvin/prompts/default_system_inline.md)
+- [default_system_summary.md](../../marvin/prompts/default_system_summary.md)
+- [default_system_context.md](../../marvin/prompts/default_system_context.md)
 
 and define the style, tone, and structure of the review.
 
@@ -43,7 +43,7 @@ and define the style, tone, and structure of the review.
 
 ## 🔧 How to use
 
-Specify desired prompt files in your `.ai-review.yaml` (or `.json`, `.env`). Each section supports multiple files — they
+Specify desired prompt files in your `.marvin.yaml` (or `.json`, `.env`). Each section supports multiple files — they
 will be concatenated in order.
 
 ```yaml
@@ -87,7 +87,7 @@ prompt:
 ## 🔀 Prompt Formatting
 
 Prompt templates support **placeholders**. The placeholder syntax is configurable via `prompt.context_placeholder` (
-YAML/JSON) or `AI_REVIEW__PROMPT__CONTEXT_PLACEHOLDER` (ENV).
+YAML/JSON) or `MARVIN__PROMPT__CONTEXT_PLACEHOLDER` (ENV).
 
 For example:
 
@@ -103,8 +103,8 @@ Labels: <<labels>>
 |------------------------------|-------------------------------------|-----------------------------------------------|
 | `review_title`               | `"Fix login bug"`                   | Review title (PR/MR title)                    |
 | `review_description`         | `"Implements redirect after login"` | Review description (PR/MR description)        |
-| `review_author_name`         | `"Nikita"`                          | Author’s display name                         |
-| `review_author_username`     | `"nikita.filonov"`                  | Author’s username (use `@{...}` for mentions) |
+| `review_author_name`         | `"CodeMonkey"`                      | Author’s display name                         |
+| `review_author_username`     | `"code.monkey"`                     | Author’s username (use `@{...}` for mentions) |
 | `review_reviewer`            | `"Alice"`                           | First reviewer’s name (if any)                |
 | `review_reviewers`           | `"Alice, Bob"`                      | List of reviewers (names)                     |
 | `review_reviewers_usernames` | `"alice, bob"`                      | List of reviewers (usernames)                 |
@@ -133,9 +133,9 @@ In addition to the built-in variables, you can inject **your own context variabl
 
 These are configured under `prompt.context` and can be provided via:
 
-- **YAML** ([.ai-review.yaml](../../docs/configs/.ai-review.yaml))
-- **JSON** ([.ai-review.json](../../docs/configs/.ai-review.json))
-- **ENV variables** (`AI_REVIEW__PROMPT__CONTEXT__your_key=value`)
+- **YAML** ([.marvin.yaml](../../docs/configs/.marvin.yaml))
+- **JSON** ([.marvin.json](../../docs/configs/.marvin.json))
+- **ENV variables** (`MARVIN__PROMPT__CONTEXT__your_key=value`)
 - **.env file** (same as ENV)
 
 At runtime, all keys under `prompt.context` become placeholders available in prompt templates.
@@ -166,8 +166,8 @@ prompt:
 #### Example: ENV / .env
 
 ```dotenv
-AI_REVIEW__PROMPT__CONTEXT__ENVIRONMENT="staging"
-AI_REVIEW__PROMPT__CONTEXT__COMPANY_NAME="ACME Corp"
+MARVIN__PROMPT__CONTEXT__ENVIRONMENT="staging"
+MARVIN__PROMPT__CONTEXT__COMPANY_NAME="ACME Corp"
 ```
 
 #### Usage in prompt templates
@@ -190,7 +190,7 @@ Author: @<<review_author_username>>
 
 ## 🌐 Centralized Prompt Management
 
-`ai-review` intentionally does not support remote prompt URLs. This is a deliberate design choice to keep the tool
+`marvin` intentionally does not support remote prompt URLs. This is a deliberate design choice to keep the tool
 **simple**, **predictable**, **offline-ready**, and **CI/CD-friendly**. Fetching prompts over the network would
 introduce unnecessary complexity — authentication, caching, retries, validation, offline fallback, and more.
 
@@ -203,13 +203,13 @@ itself.
 
 #### 1. Create a shared repository for prompts
 
-If you don’t have one yet, create a new Git repository (e.g. `ai-review-prompts`) and store your prompt files there.
+If you don’t have one yet, create a new Git repository (e.g. `marvin-prompts`) and store your prompt files there.
 
 For example:
 
 ```text
 ci-cd/templates/
-  └── ai-review/prompts/
+  └── marvin/prompts/
       ├── inline.md
       ├── context.md
       └── summary.md
@@ -224,22 +224,22 @@ git submodule add https://gitlab.com/ci-cd/templates.git shared-prompts
 After that, your project will include the shared prompts locally:
 
 ```text
-/shared-prompts/ai-review/prompts/
+/shared-prompts/marvin/prompts/
   ├── inline.md
   ├── context.md
   └── summary.md
 ```
 
-#### 3. Reference these prompt files directly in your `.ai-review.yaml`:
+#### 3. Reference these prompt files directly in your `.marvin.yaml`:
 
 ```yaml
 prompt:
   inline_prompt_files:
-    - ./shared-prompts/ai-review/prompts/inline.md
+    - ./shared-prompts/marvin/prompts/inline.md
   context_prompt_files:
-    - ./shared-prompts/ai-review/prompts/context.md
+    - ./shared-prompts/marvin/prompts/context.md
   summary_prompt_files:
-    - ./shared-prompts/ai-review/prompts/summary.md
+    - ./shared-prompts/marvin/prompts/summary.md
 ```
 
 #### 4. Keep prompts up to date by pulling the latest version of the submodule:
@@ -265,5 +265,5 @@ before_script:
 
 ### 📌 Summary
 
-`ai-review` expects local prompt files and intentionally avoids remote fetching in its core. Using Git submodules gives
+`marvin` expects local prompt files and intentionally avoids remote fetching in its core. Using Git submodules gives
 you centralized, versioned, reusable prompts today — without adding complexity to the tool.

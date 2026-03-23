@@ -1,0 +1,34 @@
+name: Docker
+run-name: >
+  Build
+  ${{ inputs.tag && format('tag={0}', inputs.tag) || '' }}
+  ${{ inputs.python && format('python={0}', inputs.python) || '' }}
+  ${{ inputs.push && format('push={0}', inputs.push) || ''}}
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: tag image
+        type: string
+      push:
+        description: push to registry
+        type: boolean
+        default: true
+      python:
+        description: version
+        type: choice
+        default: '3.12'
+        options:
+          - '3.12'
+          - '3.13'
+          - '3.14'
+
+jobs:
+  manual:
+    uses: ./.github/workflows/template_docker.yml
+    secrets: inherit
+    with:
+      tag: ${{ inputs.tag }}
+      push: ${{ inputs.push == true }}
+      python: ${{ inputs.python }}

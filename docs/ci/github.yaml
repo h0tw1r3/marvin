@@ -1,17 +1,17 @@
 # ===============================
-# AI Review — GitHub Actions Integration
+# marvin — GitHub Actions Integration
 # ===============================
-# This workflow demonstrates how to integrate AI Review
+# This workflow demonstrates how to integrate marvin
 # into your GitHub repository for automated or manual pull request reviews.
 #
 # It can be launched manually from the Actions tab, or configured to trigger
 # automatically for PR events (opened, updated, reopened).
 #
-# Docs: https://github.com/Nikita-Filonov/ai-review
-# Marketplace Action: Nikita-Filonov/ai-review@v0.62.0
+# Docs: https://github.com/h0tw1r3/marvin
+# Marketplace Action: h0tw1r3/marvin@latest
 # ===============================
 
-name: AI Review
+name: marvin
 
 on:
   # Manual trigger from GitHub UI
@@ -38,8 +38,8 @@ on:
         description: "Pull Request number to review"
 
 jobs:
-  ai-review:
-    name: Run AI Review
+  marvin:
+    name: Run marvin
     runs-on: ubuntu-latest
 
     permissions:
@@ -53,8 +53,8 @@ jobs:
           # Required: fetch full history so that git diff between base and head SHAs works correctly.
           fetch-depth: 0
 
-      - name: Run AI Review
-        uses: Nikita-Filonov/ai-review@v0.62.0
+      - name: Run marvin
+        uses: h0tw1r3/marvin@latest
         env:
           # ===============================
           # LLM provider & model
@@ -267,10 +267,10 @@ jobs:
           REVIEW__DRY_RUN: "false"
 
           # Tags used to mark AI-generated comments in PR.
-          REVIEW__INLINE_TAG: "#ai-review-inline"
-          REVIEW__INLINE_REPLY_TAG: "#ai-review-inline-reply"
-          REVIEW__SUMMARY_TAG: "#ai-review-summary"
-          REVIEW__SUMMARY_REPLY_TAG: "#ai-review-summary-reply"
+          REVIEW__INLINE_TAG: "#marvin-inline"
+          REVIEW__INLINE_REPLY_TAG: "#marvin-inline-reply"
+          REVIEW__SUMMARY_TAG: "#marvin-summary"
+          REVIEW__SUMMARY_REPLY_TAG: "#marvin-summary-reply"
 
           # Context lines (only for *_WITH_CONTEXT modes).
           REVIEW__CONTEXT_LINES: "10"
