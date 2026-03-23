@@ -1,0 +1,269 @@
+# 📘 AI Review Prompts
+
+This folder contains **language-specific prompt templates** for AI Review. Each language has its own subfolder with
+inline and summary review instructions, separated by style (e.g. light, strict).
+
+Prompts extend the built-in system templates:
+
+- [default_system_agent.md](../../ai_review/prompts/default_system_agent.md)
+- [default_system_inline.md](../../ai_review/prompts/default_system_inline.md)
+- [default_system_summary.md](../../ai_review/prompts/default_system_summary.md)
+- [default_system_context.md](../../ai_review/prompts/default_system_context.md)
+
+and define the style, tone, and structure of the review.
+
+---
+
+## 📑 Table of Contents
+
+- [📂 Available Prompt Sets](#-available-prompt-sets)
+- [🔧 How to use](#-how-to-use)
+- [📝 Notes](#-notes)
+- [🔀 Prompt Formatting](#-prompt-formatting)
+    - [📌 Available Variables](#-available-variables)
+    - [🔧 Custom Variables](#-custom-variables)
+- [🌐 Centralized Prompt Management](#-centralized-prompt-management)
+
+---
+
+## 📂 Available Prompt Sets
+
+| Language | Style  | Inline                                                 | Inline Replу                                                       | Summary                                                  | Summary Reply                                                        |
+|----------|--------|--------------------------------------------------------|--------------------------------------------------------------------|----------------------------------------------------------|----------------------------------------------------------------------|
+| Python   | Light  | [./python/inline/light.md](./python/inline/light.md)   | [./python/inline_reply/light.md](./python/inline_reply/light.md)   | [./python/summary/light.md](./python/summary/light.md)   | [./python/summary_reply/light.md](./python/summary_reply/light.md)   |
+| Python   | Strict | [./python/inline/strict.md](./python/inline/strict.md) | [./python/inline_reply/strict.md](./python/inline_reply/strict.md) | [./python/summary/strict.md](./python/summary/strict.md) | [./python/summary_reply/strict.md](./python/summary_reply/strict.md) |
+| Go       | Light  | [./go/inline/light.md](./go/inline/light.md)           | [./go/inline_reply/light.md](./go/inline_reply/light.md)           | [./go/summary/light.md](./go/summary/light.md)           | [./go/summary_reply/light.md](./go/summary_reply/light.md)           |
+| Go       | Strict | [./go/inline/strict.md](./go/inline/strict.md)         | [./go/inline_reply/strict.md](./go/inline_reply/strict.md)         | [./go/summary/strict.md](./go/summary/strict.md)         | [./go/summary_reply/strict.md](./go/summary_reply/strict.md)         |
+
+> 🧩 Each prompt file defines review instructions, evaluation criteria, and output format (e.g. JSON for inline comments
+> or plain text for summaries).
+> Reply prompts (inline_reply / summary_reply) handle contextual AI responses during ongoing discussions.
+
+---
+
+## 🔧 How to use
+
+Specify desired prompt files in your `.ai-review.yaml` (or `.json`, `.env`). Each section supports multiple files — they
+will be concatenated in order.
+
+```yaml
+prompt:
+  inline_prompt_files:
+    - ./docs/prompts/python/inline/light.md
+  context_prompt_files:
+    - ./docs/prompts/python/inline/light.md
+  summary_prompt_files:
+    - ./docs/prompts/python/summary/light.md
+```
+
+For a strict Go review:
+
+```yaml
+prompt:
+  inline_prompt_files:
+    - ./docs/prompts/go/inline/strict.md
+  context_prompt_files:
+    - ./docs/prompts/go/inline/strict.md
+  summary_prompt_files:
+    - ./docs/prompts/go/summary/strict.md
+```
+
+---
+
+## 📝 Notes
+
+- System prompts (`default_system_inline.md`, `default_system_context.md`, `default_system_summary.md`) are
+  **always included** unless disabled with `include_*_system_prompts: false`.
+- System prompts enforce consistent output format (JSON / text).
+- Project-specific prompts define style and tone — not the schema contract.
+- **Agent prompts** (`default_system_agent.md`, `default_agent.md`) control the iterative agent loop protocol.
+  The system agent prompt defines the `TOOL_CALL` / `FINAL` contract, while the agent prompt guides exploration
+  strategy. Override via `agent_prompt_files` / `system_agent_prompt_files` in your config.
+- You can mix **languages or styles** (e.g. `inline_go_strict.md` with `summary_python_light.md`).
+- Add your own organization-specific prompts (e.g., `./prompts/js/inline/corporate.md`).
+
+---
+
+## 🔀 Prompt Formatting
+
+Prompt templates support **placeholders**. The placeholder syntax is configurable via `prompt.context_placeholder` (
+YAML/JSON) or `AI_REVIEW__PROMPT__CONTEXT_PLACEHOLDER` (ENV).
+
+For example:
+
+```text
+Please review the changes in **<<merge_request_title>>**  
+Author: @<<merge_request_author_username>>  
+Labels: <<labels>>
+```
+
+### 📌 Available Variables
+
+| Variable                     | Example                             | Description                                   |
+|------------------------------|-------------------------------------|-----------------------------------------------|
+| `review_title`               | `"Fix login bug"`                   | Review title (PR/MR title)                    |
+| `review_description`         | `"Implements redirect after login"` | Review description (PR/MR description)        |
+| `review_author_name`         | `"Nikita"`                          | Author’s display name                         |
+| `review_author_username`     | `"nikita.filonov"`                  | Author’s username (use `@{...}` for mentions) |
+| `review_reviewer`            | `"Alice"`                           | First reviewer’s name (if any)                |
+| `review_reviewers`           | `"Alice, Bob"`                      | List of reviewers (names)                     |
+| `review_reviewers_usernames` | `"alice, bob"`                      | List of reviewers (usernames)                 |
+| `review_assignees`           | `"Charlie, Diana"`                  | List of assignees (names)                     |
+| `review_assignees_usernames` | `"charlie, diana"`                  | List of assignees (usernames)                 |
+| `source_branch`              | `"feature/login-fix"`               | Source branch                                 |
+| `target_branch`              | `"main"`                            | Target branch                                 |
+| `labels`                     | `"bug, critical"`                   | Review labels                                 |
+| `changed_files`              | `"foo.py, bar.py"`                  | Changed files in review                       |
+
+✅ This allows you to write conditional instructions directly in your prompt.
+
+For example:
+
+```text
+If the title **<<review_title>>** does not include a ticket ID,
+mention @<<review_author_username>> and ask to update it.
+
+If <<labels>> do not contain "autotests",
+remind @<<review_author_username>> to add it.
+```
+
+### 🔧 Custom Variables
+
+In addition to the built-in variables, you can inject **your own context variables** into any prompt.
+
+These are configured under `prompt.context` and can be provided via:
+
+- **YAML** ([.ai-review.yaml](../../docs/configs/.ai-review.yaml))
+- **JSON** ([.ai-review.json](../../docs/configs/.ai-review.json))
+- **ENV variables** (`AI_REVIEW__PROMPT__CONTEXT__your_key=value`)
+- **.env file** (same as ENV)
+
+At runtime, all keys under `prompt.context` become placeholders available in prompt templates.
+
+#### Example: YAML
+
+```yaml
+prompt:
+  context:
+    environment: "staging"
+    company_name: "ACME Corp"
+    ci_pipeline_url: "https://gitlab.com/pipelines/123"
+```
+
+#### Example: JSON
+
+```json
+{
+  "prompt": {
+    "context": {
+      "environment": "staging",
+      "company_name": "ACME Corp"
+    }
+  }
+}
+```
+
+#### Example: ENV / .env
+
+```dotenv
+AI_REVIEW__PROMPT__CONTEXT__ENVIRONMENT="staging"
+AI_REVIEW__PROMPT__CONTEXT__COMPANY_NAME="ACME Corp"
+```
+
+#### Usage in prompt templates
+
+```text
+Company: <<company_name>>
+Environment: <<environment>>
+Pipeline: <<ci_pipeline_url>>
+Author: @<<review_author_username>>
+```
+
+### Notes
+
+- All context keys are automatically merged into the built-in prompt variables.
+- If a custom key overrides a built-in variable (e.g., `labels`), the custom value wins.
+- To avoid clashes, prefer namespaced keys (e.g. `ci_pipeline_url`, `org_notify_handle`).
+- Non-string values will be stringified automatically.
+
+---
+
+## 🌐 Centralized Prompt Management
+
+`ai-review` intentionally does not support remote prompt URLs. This is a deliberate design choice to keep the tool
+**simple**, **predictable**, **offline-ready**, and **CI/CD-friendly**. Fetching prompts over the network would
+introduce unnecessary complexity — authentication, caching, retries, validation, offline fallback, and more.
+
+If you want to centralize and reuse prompt templates across multiple projects, the recommended solution is to store them
+in a **shared Git repository** and include it as a [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+This gives you all the benefits of centralized prompts without adding network or authentication logic into the tool
+itself.
+
+### ✅ Recommended Workflow: Git Submodules
+
+#### 1. Create a shared repository for prompts
+
+If you don’t have one yet, create a new Git repository (e.g. `ai-review-prompts`) and store your prompt files there.
+
+For example:
+
+```text
+ci-cd/templates/
+  └── ai-review/prompts/
+      ├── inline.md
+      ├── context.md
+      └── summary.md
+```
+
+#### 2. Add this shared prompt repository as a submodule to your project:
+
+```bash
+git submodule add https://gitlab.com/ci-cd/templates.git shared-prompts
+```
+
+After that, your project will include the shared prompts locally:
+
+```text
+/shared-prompts/ai-review/prompts/
+  ├── inline.md
+  ├── context.md
+  └── summary.md
+```
+
+#### 3. Reference these prompt files directly in your `.ai-review.yaml`:
+
+```yaml
+prompt:
+  inline_prompt_files:
+    - ./shared-prompts/ai-review/prompts/inline.md
+  context_prompt_files:
+    - ./shared-prompts/ai-review/prompts/context.md
+  summary_prompt_files:
+    - ./shared-prompts/ai-review/prompts/summary.md
+```
+
+#### 4. Keep prompts up to date by pulling the latest version of the submodule:
+
+```bash
+git submodule update --remote
+```
+
+Or automatically during CI:
+
+```yaml
+before_script:
+  - git submodule update --init --recursive --remote
+```
+
+### 📦 Why This Works Best
+
+- 🧩 **Centralized management** — one shared prompt repository for all projects
+- 🔁 **Easy updates** — update prompts in one place, pull changes everywhere
+- 🧪 **Version control** — prompts evolve alongside code with full Git history
+- 🛡 **No runtime dependencies** — no network calls, tokens, or auth handling required
+- 📦 **Offline support** — works in air-gapped and enterprise environments
+
+### 📌 Summary
+
+`ai-review` expects local prompt files and intentionally avoids remote fetching in its core. Using Git submodules gives
+you centralized, versioned, reusable prompts today — without adding complexity to the tool.
