@@ -1,4 +1,4 @@
-# 📘 AI Review Documentation
+# 📘 marvin Documentation
 
 See these folders for reference templates and full configuration options:
 

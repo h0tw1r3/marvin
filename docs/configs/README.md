@@ -1,13 +1,13 @@
-# 📘 AI Review Configuration
+# 📘 marvin Configuration
 
-AI Review supports multiple configuration formats and sources. All of them are automatically detected at runtime.
+marvin supports multiple configuration formats and sources. All of them are automatically detected at runtime.
 
 ---
 
 ## 📂 Supported formats
 
-- **YAML** (recommended): `.ai-review.yaml`
-- **JSON**: `.ai-review.json`
+- **YAML** (recommended): `.marvin.yaml`
+- **JSON**: `.marvin.json`
 - **ENV**: `.env`
 
 👉 You can combine formats: values are loaded in order of priority.
@@ -16,9 +16,9 @@ AI Review supports multiple configuration formats and sources. All of them are a
 
 ## 📑 Load priority
 
-1. **YAML** (`.ai-review.yaml` or path from `AI_REVIEW_CONFIG_FILE_YAML`)
-2. **JSON** (`.ai-review.json` or path from `AI_REVIEW_CONFIG_FILE_JSON`)
-3. **ENV** (`.env` or path from `AI_REVIEW_CONFIG_FILE_ENV`)
+1. **YAML** (`.marvin.yaml` or path from `MARVIN_CONFIG_FILE_YAML`)
+2. **JSON** (`.marvin.json` or path from `MARVIN_CONFIG_FILE_JSON`)
+3. **ENV** (`.env` or path from `MARVIN_CONFIG_FILE_ENV`)
 4. **Environment variables** (`LLM__PROVIDER=OPENAI`, etc.)
 5. **Initialization arguments** (if used as a library)
 
@@ -28,9 +28,9 @@ AI Review supports multiple configuration formats and sources. All of them are a
 
 You can override default config locations using environment variables:
 
-- `AI_REVIEW_CONFIG_FILE_YAML` — path to `.yaml` config
-- `AI_REVIEW_CONFIG_FILE_JSON` — path to `.json` config
-- `AI_REVIEW_CONFIG_FILE_ENV` — path to `.env`
+- `MARVIN_CONFIG_FILE_YAML` — path to `.yaml` config
+- `MARVIN_CONFIG_FILE_JSON` — path to `.json` config
+- `MARVIN_CONFIG_FILE_ENV` — path to `.env`
 
 By default, configs are loaded from the **project root**.
 
@@ -38,8 +38,8 @@ By default, configs are loaded from the **project root**.
 
 ## 📘 Examples
 
-- [.ai-review.yaml](./.ai-review.yaml) — main YAML config with comments
-- [.ai-review.json](./.ai-review.json) — JSON config example
+- [.marvin.yaml](./.marvin.yaml) — main YAML config with comments
+- [.marvin.json](./.marvin.json) — JSON config example
 - [.env.example](./.env.example) — ENV config example
 
 ---

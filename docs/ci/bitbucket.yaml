@@ -1,8 +1,8 @@
 # ============================================
-# Bitbucket Pipelines configuration for AI Review
+# Bitbucket Pipelines configuration for marvin
 # ============================================
 
-image: nikitafilonov/ai-review:latest
+image: ghcr.io/h0tw1r3/marvin:latest
 
 options:
   size: 2x
@@ -13,12 +13,12 @@ options:
 # --------------------------------------------
 definitions:
   steps:
-    - step: &ai-review-base
-        name: "AI Review (Base)"
+    - step: &marvin-base
+        name: "marvin (Base)"
         trigger: manual
         script:
-          - echo "🚀 Starting AI Review for Bitbucket PR..."
-          - ai-review run
+          - echo "🚀 Starting marvin for Bitbucket PR..."
+          - marvin run
         variables:
           # ===============================
           # LLM provider & model
@@ -60,10 +60,10 @@ definitions:
           REVIEW__MODE: "FULL_FILE_DIFF"
           REVIEW__DRY_RUN: "false"
 
-          REVIEW__INLINE_TAG: "#ai-review-inline"
-          REVIEW__SUMMARY_TAG: "#ai-review-summary"
-          REVIEW__INLINE_REPLY_TAG: "#ai-review-inline-reply"
-          REVIEW__SUMMARY_REPLY_TAG: "#ai-review-summary-reply"
+          REVIEW__INLINE_TAG: "#marvin-inline"
+          REVIEW__SUMMARY_TAG: "#marvin-summary"
+          REVIEW__INLINE_REPLY_TAG: "#marvin-inline-reply"
+          REVIEW__SUMMARY_REPLY_TAG: "#marvin-summary-reply"
           REVIEW__INLINE_COMMENT_FALLBACK: "true"
 
           # ===============================
@@ -96,67 +96,67 @@ pipelines:
       - step:
           name: "Init pipeline"
           script:
-            - echo "Initializing Bitbucket AI Review..."
+            - echo "Initializing Bitbucket marvin..."
 
   custom:
     # Run full review
-    ai-review-all:
+    marvin-all:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (All)"
+          <<: *marvin-base
+          name: "marvin (All)"
           script:
-            - ai-review run
+            - marvin run
 
     # Inline review only
-    ai-review-inline:
+    marvin-inline:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Inline)"
+          <<: *marvin-base
+          name: "marvin (Inline)"
           script:
-            - ai-review run-inline
+            - marvin run-inline
 
     # Context review only
-    ai-review-context:
+    marvin-context:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Context)"
+          <<: *marvin-base
+          name: "marvin (Context)"
           script:
-            - ai-review run-context
+            - marvin run-context
 
     # Summary review
-    ai-review-summary:
+    marvin-summary:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Summary)"
+          <<: *marvin-base
+          name: "marvin (Summary)"
           script:
-            - ai-review run-summary
+            - marvin run-summary
 
     # Inline reply mode
-    ai-review-inline-reply:
+    marvin-inline-reply:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Inline Reply)"
+          <<: *marvin-base
+          name: "marvin (Inline Reply)"
           script:
-            - ai-review run-inline-reply
+            - marvin run-inline-reply
 
     # Summary reply mode
-    ai-review-summary-reply:
+    marvin-summary-reply:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Summary Reply)"
+          <<: *marvin-base
+          name: "marvin (Summary Reply)"
           script:
-            - ai-review run-summary-reply
+            - marvin run-summary-reply
 
-    ai-review-clear-inline:
+    marvin-clear-inline:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Clear Inline Comments)"
+          <<: *marvin-base
+          name: "marvin (Clear Inline Comments)"
           script:
-            - ai-review clear-inline
+            - marvin clear-inline
 
-    ai-review-clear-summary:
+    marvin-clear-summary:
       - step:
-          <<: *ai-review-base
-          name: "AI Review (Clear Summary Comments)"
+          <<: *marvin-base
+          name: "marvin (Clear Summary Comments)"
           script:
-            - ai-review clear-summary
+            - marvin clear-summary

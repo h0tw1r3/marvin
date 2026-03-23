@@ -1,0 +1,41 @@
+name: Test
+
+inputs:
+  python-version:
+    type: string
+    default: "3.12"
+    required: false
+  codecov-token:
+    type: string
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set up Python"
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Test with coverage and analytics
+      shell: bash
+      run: uv run pytest --cov-report=xml --junitxml=junit.xml -o junit_family=xunit2
+
+    - if: ${{ inputs.codecov-token != '' }}
+      name: Upload coverage
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ inputs.codecov-token }}
+        files: ./coverage.xml
+        verbose: true
+
+    - if: ${{ !cancelled() && inputs.codecov-token != '' }}
+      name: Upload test results
+      uses: codecov/codecov-action@v5
+      with:
+        report_type: test_results
+        token: ${{ inputs.codecov-token }}
+        verbose: true

@@ -8,8 +8,7 @@ __pycache__/
 
 .idea
 .DS_Store
-/.ai-review.json
-/.ai-review.yaml
+/.marvin.*
 
 # Distribution / packaging
 .Python
@@ -26,10 +25,11 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-*.egg-info/
+src/*.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
+requirements.txt
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -50,6 +50,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+junit.xml
 *.cover
 *.py,cover
 .hypothesis/

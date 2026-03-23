@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // ===============================
         // LLM provider & model
-        // ===============================
         LLM__PROVIDER = "OPENAI"
         LLM__META__MODEL = "gpt-4o-mini"
         LLM__META__MAX_TOKENS = "15000"
@@ -13,9 +11,7 @@ pipeline {
         LLM__HTTP_CLIENT__API_URL = "https://api.openai.com/v1"
         LLM__HTTP_CLIENT__API_TOKEN = credentials('OPENAI_API_KEY')
 
-        // ===============================
         // VCS (example: GitHub integration)
-        // ===============================
         VCS__PROVIDER = "GITHUB"
         VCS__PIPELINE__OWNER = "my-org"
         VCS__PIPELINE__REPO = "my-service"
@@ -23,14 +19,12 @@ pipeline {
         VCS__HTTP_CLIENT__API_URL = "https://api.github.com"
         VCS__HTTP_CLIENT__API_TOKEN = credentials('GITHUB_TOKEN')
 
-        // ===============================
         // Core settings
-        // ===============================
         CORE__CONCURRENCY = "7"
     }
 
     stages {
-        stage('AI Review - Inline') {
+        stage('Inline') {
             steps {
                 sh '''
                     docker run --rm \
@@ -48,27 +42,27 @@ pipeline {
                       -e VCS__HTTP_CLIENT__API_TOKEN \
                       -e CORE__CONCURRENCY \
                       -v $(pwd):/app \
-                      nikitafilonov/ai-review:latest ai-review run-inline
+                      ghcr.io/h0tw1r3/marvin:latest marvin run-inline
                 '''
             }
         }
 
-        stage('AI Review - Context') {
+        stage('Context') {
             steps {
                 sh '''
                     docker run --rm \
                       -v $(pwd):/app \
-                      nikitafilonov/ai-review:latest ai-review run-context
+                      ghcr.io/h0tw1r3/marvin:latest marvin run-context
                 '''
             }
         }
 
-        stage('AI Review - Summary') {
+        stage('Summary') {
             steps {
                 sh '''
                     docker run --rm \
                       -v $(pwd):/app \
-                      nikitafilonov/ai-review:latest ai-review run-summary
+                      ghcr.io/h0tw1r3/marvin:latest marvin run-summary
                 '''
             }
         }

@@ -1,6 +1,6 @@
-# 📘 AI Review CLI
+# 📘 marvin CLI
 
-The **AI Review CLI** provides a simple interface to run reviews, inspect configuration, and integrate with CI/CD
+The **marvin CLI** provides a simple interface to run reviews, inspect configuration, and integrate with CI/CD
 pipelines.
 
 It is built with Typer and fully supports async execution of all review modes.
@@ -9,22 +9,22 @@ It is built with Typer and fully supports async execution of all review modes.
 
 ## 🚀 Quick Start
 
-After installing AI Review:
+After installing marvin:
 
 ````bash
-pip install xai-review
+pip install marvin
 ````
 
 Run any command from your terminal:
 
 ```bash
-ai-review run
+marvin run
 ```
 
 Or display help:
 
 ```bash
-ai-review --help
+marvin --help
 ```
 
 ---
@@ -33,15 +33,15 @@ ai-review --help
 
 | Command                       | Description                                                               | Typical Usage                 |
 |-------------------------------|---------------------------------------------------------------------------|-------------------------------|
-| `ai-review run`               | Runs the full review pipeline (inline + summary).                         | `ai-review run`               |
-| `ai-review run-inline`        | Runs only **inline review** (line-by-line comments).                      | `ai-review run-inline`        |
-| `ai-review run-context`       | Runs **context review** across multiple files for architectural feedback. | `ai-review run-context`       |
-| `ai-review run-summary`       | Runs **summary review** that posts a single summarizing comment.          | `ai-review run-summary`       |
-| `ai-review run-inline-reply`  | Generates **AI replies** to existing inline comment threads.              | `ai-review run-inline-reply`  |
-| `ai-review run-summary-reply` | Generates **AI replies** to existing summary review threads.              | `ai-review run-summary-reply` |
-| `ai-review clear-inline`      | Removes all **AI-generated inline comments** from the review.             | `ai-review clear-inline`      |
-| `ai-review clear-summary`     | Removes all **AI-generated summary comments** from the review.            | `ai-review clear-summary`     |
-| `ai-review show-config`       | Prints the currently resolved configuration (merged from YAML/JSON/ENV).  | `ai-review show-config`       |
+| `marvin run`               | Runs the full review pipeline (inline + summary).                         | `marvin run`               |
+| `marvin run-inline`        | Runs only **inline review** (line-by-line comments).                      | `marvin run-inline`        |
+| `marvin run-context`       | Runs **context review** across multiple files for architectural feedback. | `marvin run-context`       |
+| `marvin run-summary`       | Runs **summary review** that posts a single summarizing comment.          | `marvin run-summary`       |
+| `marvin run-inline-reply`  | Generates **AI replies** to existing inline comment threads.              | `marvin run-inline-reply`  |
+| `marvin run-summary-reply` | Generates **AI replies** to existing summary review threads.              | `marvin run-summary-reply` |
+| `marvin clear-inline`      | Removes all **AI-generated inline comments** from the review.             | `marvin clear-inline`      |
+| `marvin clear-summary`     | Removes all **AI-generated summary comments** from the review.            | `marvin clear-summary`     |
+| `marvin show-config`       | Prints the currently resolved configuration (merged from YAML/JSON/ENV).  | `marvin show-config`       |
 
 ---
 
@@ -52,7 +52,7 @@ ai-review --help
 Runs the complete review cycle — inline + summary:
 
 ```bash
-ai-review run
+marvin run
 ```
 
 ### 🧩 Inline Review Only
@@ -60,7 +60,7 @@ ai-review run
 For quick line-by-line comments:
 
 ```bash
-ai-review run-inline
+marvin run-inline
 ```
 
 Typical in CI/CD pipelines for fast feedback on changed files.
@@ -70,7 +70,7 @@ Typical in CI/CD pipelines for fast feedback on changed files.
 For broader architectural or cross-file feedback:
 
 ```bash
-ai-review run-context
+marvin run-context
 ```
 
 The model receives the entire diff set and can highlight inconsistencies between modules.
@@ -80,7 +80,7 @@ The model receives the entire diff set and can highlight inconsistencies between
 Posts one concise summary comment under the merge/pull request:
 
 ```bash
-ai-review run-summary
+marvin run-summary
 ```
 
 Useful when inline feedback isn’t required but a global analysis is.
@@ -90,27 +90,27 @@ Useful when inline feedback isn’t required but a global analysis is.
 Generate AI-based follow-ups to existing discussion threads:
 
 ```bash
-ai-review run-inline-reply
-ai-review run-summary-reply
+marvin run-inline-reply
+marvin run-summary-reply
 ```
 
-Replies only to comments originally created by AI Review.
+Replies only to comments originally created by marvin.
 
 ### 🧽 Clear Inline Comments
 
 Removes all AI-generated inline comments:
 
 ```bash
-ai-review clear-inline
+marvin clear-inline
 ```
 
 > ⚠️ **Warning**
 >
-> This command **permanently deletes** all inline review comments created by AI Review in the current merge / pull
+> This command **permanently deletes** all inline review comments created by marvin in the current merge / pull
 > request.
 >
 > - The operation cannot be undone
-> - Only comments marked with the AI Review inline tag are affected
+> - Only comments marked with the marvin inline tag are affected
 > - Developer and user comments are not touched
 >
 > It is recommended to run this command **manually** and only when you are sure that existing AI comments are no longer
@@ -121,15 +121,15 @@ ai-review clear-inline
 Removes all AI-generated summary comments:
 
 ```bash
-ai-review clear-summary
+marvin clear-summary
 ```
 
 > ⚠️ **Warning**
 >
-> This command **permanently deletes** all summary review comments created by AI Review.
+> This command **permanently deletes** all summary review comments created by marvin.
 >
 > - The operation cannot be undone
-> - Only AI Review summary comments are removed
+> - Only marvin summary comments are removed
 > - No new comments are created as part of this command
 >
 > Use with caution, especially in shared or long-running pull requests.
@@ -139,7 +139,7 @@ ai-review clear-summary
 Display the resolved configuration used by the CLI:
 
 ```bash
-ai-review show-config
+marvin show-config
 ```
 
 Output (formatted JSON):
