@@ -46,7 +46,7 @@ repos:
         args: [--autofix, --indent, '2', --offset, '2', --preserve-quotes]
 
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.35
+    rev: v0.9.36
     hooks:
       - id: pymarkdown
         # TODO(h0tw1r3) remove when prompts not excluded in pyproject.toml
