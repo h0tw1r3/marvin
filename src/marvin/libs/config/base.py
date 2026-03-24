@@ -2,6 +2,10 @@ import os
 from enum import StrEnum
 
 
+class ConfigError(Exception):
+    """Raised for config file loading, parsing, or interpolation failures."""
+
+
 class ConfigEnv(StrEnum):
     ENV = "MARVIN_CONFIG_FILE_ENV"
     YAML = "MARVIN_CONFIG_FILE_YAML"
