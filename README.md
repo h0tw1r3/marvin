@@ -26,6 +26,21 @@ context-aware feedback.
 pip install -e .
 ```
 
+## Configuration
+
+MARVIN loads settings from multiple sources in priority order:
+
+1. `.marvin.yaml` (or `MARVIN_CONFIG_FILE_YAML`)
+2. `.marvin.json` (or `MARVIN_CONFIG_FILE_JSON`)
+3. Environment variables (`LLM__PROVIDER=OPENAI`, etc.)
+4. `.env` file (or `MARVIN_CONFIG_FILE_ENV`)
+5. Init arguments (library use)
+
+YAML and JSON configs support **Docker Compose–style variable interpolation** —
+reference environment variables with `$VAR`, `${VAR}`, `${VAR:-default}`, and
+more. See [docs/configs/README.md](docs/configs/README.md) for full syntax and
+semantics.
+
 ## Notice
 
 [Marvin], Multi-model Agentic Reviewers for Virtually Intelligent Notations  
