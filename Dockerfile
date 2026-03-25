@@ -1,10 +1,8 @@
 ARG PYTHON_VERSION=3.12
 # true or false
 ARG ENABLE_FIPS=false
-ARG RELEASEVER=latest
 
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS fips-false
-ARG RELEASEVER
 ARG PYTHON_VERSION
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
@@ -13,15 +11,18 @@ WORKDIR /root
 RUN --mount=type=cache,target=/var/cache/dnf <<EOD
 echo "max_parallel_downloads=10" >> /etc/dnf/dnf.conf
 echo "fastestmirror=True" >> /etc/dnf/dnf.conf
+echo "install_weak_deps=False" >> /etc/dnf/dnf.conf
 dnf install -y spal-release python${PYTHON_VERSION}-pip
 EOD
 
 RUN --mount=type=cache,target=/var/cache/dnf <<EOD
-mkdir /sysroot
+mkdir -p /sysroot/etc/dnf/vars
+cp /etc/dnf/dnf.conf /sysroot/etc/dnf/dnf.conf
+echo "releasever=$(rpm -q system-release --qf '%{VERSION}')" > /sysroot/etc/dnf/vars/releasever
+
 dnf install -y \
-  --setopt=install_weak_deps=False \
+  --releasever=$(rpm -q system-release --qf '%{VERSION}') \
   --installroot /sysroot \
-  --releasever="${RELEASEVER}" \
   crypto-policies-scripts \
   spal-release
 EOD
@@ -32,7 +33,6 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 RUN chroot /sysroot update-crypto-policies --set FIPS
 
 FROM fips-${ENABLE_FIPS} AS sysroot
-ARG RELEASEVER
 ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -40,11 +40,8 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 RUN --mount=type=cache,target=/var/cache/dnf <<EOD
 dnf install -y \
-  --setopt=install_weak_deps=False \
-  --setopt=max_parallel_downloads=10 \
-  --setopt=fastestmirror=True \
+  --releasever=$(rpm -q system-release --qf '%{VERSION}') \
   --installroot /sysroot \
-  --releasever="${RELEASEVER}" \
     git \
     openssh-clients \
     ripgrep \
