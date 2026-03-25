@@ -10,36 +10,68 @@
 
 # --- OpenAI ---
 gpt-4o-mini:
-  input: 0.12e-6
-  output: 0.48e-6
+  input: 0.15e-6
+  output: 0.60e-6
 
 gpt-4o:
-  input: 4.00e-6
-  output: 12.00e-6
+  input: 2.50e-6
+  output: 10.00e-6
 
 gpt-4.1-mini:
-  input: 0.12e-6
-  output: 0.48e-6
+  input: 0.40e-6
+  output: 1.60e-6
 
 gpt-4.1:
-  input: 4.00e-6
-  output: 12.00e-6
+  input: 2.00e-6
+  output: 8.00e-6
 
 gpt-5:
-  input: 8.00e-6
-  output: 24.00e-6
+  input: 1.25e-6
+  output: 10.00e-6
 
 gpt-5.1:
-  input: 1.20e-6
-  output: 9.60e-6
+  input: 1.25e-6
+  output: 10.00e-6
 
 gpt-5.2:
-  input: 1.70e-6
-  output: 13.60e-6
+  input: 1.75e-6
+  output: 14.00e-6
+
+gpt-5.4:
+  input: 2.50e-6
+  output: 15.00e-6
+
+gpt-5.4-mini:
+  input: 0.75e-6
+  output: 4.50e-6
 
 gpt-3.5-turbo:
   input: 0.40e-6
   output: 1.20e-6
+
+gpt-5-codex:
+  input: 1.25e-6
+  output: 10.00e-6
+
+gpt-5-mini:
+  input: 0.25e-6
+  output: 2.00e-6
+
+gpt-5.1-codex:
+  input: 1.25e-6
+  output: 10.00e-6
+
+gpt-5.1-codex-max:
+  input: 1.25e-6
+  output: 10.00e-6
+
+gpt-5.2-codex:
+  input: 1.75e-6
+  output: 14.00e-6
+
+gpt-5.3-codex:
+  input: 1.25e-6
+  output: 14.00e-6
 
 # --- Google Gemini ---
 gemini-2.0-flash-lite:
