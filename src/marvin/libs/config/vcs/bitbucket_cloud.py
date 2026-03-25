@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from marvin.libs.config.http import HTTPClientWithTokenConfig
+from marvin.libs.config.token_type import TokenType
 
 
 class BitbucketCloudPipelineConfig(BaseModel):
@@ -10,4 +11,4 @@ class BitbucketCloudPipelineConfig(BaseModel):
 
 
 class BitbucketCloudHTTPClientConfig(HTTPClientWithTokenConfig):
-    pass
+    api_token_type: TokenType = TokenType.AUTO

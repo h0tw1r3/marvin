@@ -160,6 +160,10 @@ vcs:
     # --- GitLab ---
     api_url: ${CI_SERVER_URL}       # Base GitLab server URL
     api_token: ${CI_JOB_TOKEN}      # Job token or personal access token
+    # api_token_type: auto          # Token type (default: auto):
+    #                               #  - auto   → detect from token value: Base64 user:pass -> Basic, else Bearer
+    #                               #  - bearer → Authorization: Bearer <token>
+    #                               #  - basic  → Authorization: Basic <token>  (pass pre-encoded value)
 
     # --- GitHub ---
     # api_url: https://api.github.com
@@ -167,11 +171,19 @@ vcs:
 
     # --- Bitbucket Cloud ---
     # api_url: https://api.bitbucket.org/2.0
-    # api_token: ${BITBUCKET_TOKEN}   # App password or OAuth token
+    # api_token: ${BITBUCKET_TOKEN}   # App password (Base64 user:pass) or OAuth token
+    # api_token_type: auto            # Token type (default: auto):
+    #                                 #  - auto   → detect from token value: Base64 user:pass -> Basic, else Bearer
+    #                                 #  - bearer → Authorization: Bearer <token>  (OAuth tokens)
+    #                                 #  - basic  → Authorization: Basic <token>   (pass pre-encoded value)
 
     # --- Bitbucket Server ---
     # api_url: https://bitbucket.mycompany.com/rest/api/1.0
-    # api_token: ${BITBUCKET_SERVER_TOKEN}  # Personal access token or Basic Auth token (Base64)
+    # api_token: ${BITBUCKET_SERVER_TOKEN}  # Personal access token or Basic Auth token (Base64 user:pass)
+    # api_token_type: auto                  # Token type (default: auto):
+    #                                       #  - auto   → detect from token value: Base64 user:pass -> Basic, else Bearer
+    #                                       #  - bearer → Authorization: Bearer <token>
+    #                                       #  - basic  → Authorization: Basic <token>  (pass pre-encoded value)
 
     # --- Azure DevOps ---
     # api_url: https://dev.azure.com  # Base API endpoint for your organization

@@ -1,6 +1,7 @@
 from httpx import AsyncClient, AsyncHTTPTransport
 
 from marvin.clients.gitlab.mr.client import GitLabMergeRequestsHTTPClient
+from marvin.clients.gitlab.tools import build_gitlab_headers
 from marvin.config import settings
 from marvin.libs.http.event_hooks.logger import LoggerEventHook
 from marvin.libs.http.transports.retry import RetryTransport
@@ -26,12 +27,12 @@ def get_gitlab_http_client() -> GitLabHTTPClient:
     client = AsyncClient(
         verify=settings.vcs.http_client.verify,
         timeout=settings.vcs.http_client.timeout,
-        headers={"Authorization": f"Bearer {settings.vcs.http_client.api_token_value}"},
+        headers=build_gitlab_headers(),
         base_url=settings.vcs.http_client.api_url_value,
         transport=retry_transport,
         event_hooks={
-            'request': [logger_event_hook.request],
-            'response': [logger_event_hook.response]
+            "request": [logger_event_hook.request],
+            "response": [logger_event_hook.response]
         }
     )
 

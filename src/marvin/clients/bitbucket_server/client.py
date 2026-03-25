@@ -1,5 +1,7 @@
-from marvin.clients.bitbucket_server.pr.client import BitbucketServerPullRequestsHTTPClient
 from httpx import AsyncClient, AsyncHTTPTransport
+
+from marvin.clients.bitbucket_server.pr.client import BitbucketServerPullRequestsHTTPClient
+from marvin.clients.bitbucket_server.tools import build_bitbucket_server_headers
 
 from marvin.config import settings
 from marvin.libs.http.event_hooks.logger import LoggerEventHook
@@ -26,7 +28,7 @@ def get_bitbucket_server_http_client() -> BitbucketServerHTTPClient:
     client = AsyncClient(
         verify=settings.vcs.http_client.verify,
         timeout=settings.vcs.http_client.timeout,
-        headers={"Authorization": f"Basic {settings.vcs.http_client.api_token_value}"},
+        headers=build_bitbucket_server_headers(),
         base_url=settings.vcs.http_client.api_url_value,
         transport=retry_transport,
         event_hooks={
