@@ -12,7 +12,7 @@ from marvin.cli.commands.run_summary_reply_review import run_summary_reply_revie
 from marvin.cli.commands.run_summary_review import run_summary_review_command
 from marvin.config import settings
 
-app = typer.Typer(help="ciar CLI")
+app = typer.Typer(help="marvin CLI")
 
 
 @app.command("run")
