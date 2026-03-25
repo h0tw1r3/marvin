@@ -25,6 +25,7 @@ env:
   REGISTRY_USERNAME: ${{ vars.DOCKER_USERNAME != '' && vars.DOCKER_USERNAME || github.actor }}
   REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD != '' && secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
   REPOSITORY: ${{ vars.DOCKER_REPOSITORY != '' && vars.DOCKER_REPOSITORY || github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-amd64:
