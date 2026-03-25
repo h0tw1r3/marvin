@@ -11,6 +11,10 @@ on:
       tag:
         description: tag image
         type: string
+      latest:
+        description: tag image as latest
+        type: boolean
+        default: false
       push:
         description: push to registry
         type: boolean
