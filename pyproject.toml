@@ -127,3 +127,5 @@ line_length = 160
 "docs/troubleshooting/*.md" = "MD024"
 "docs/prompts/**/*.md" = "MD001,MD004,MD007,MD013,MD026"
 "src/marvin/prompts/*.md" = "MD001,MD007,MD041"
+".github/*.md" = "MD041"
+".github/**/*.md" = "MD036,MD022,MD041"
