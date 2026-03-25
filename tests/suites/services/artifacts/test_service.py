@@ -3,9 +3,10 @@ from pathlib import Path
 
 import aiofiles
 import pytest
+import yaml
 
 from marvin.config import settings
-from marvin.libs.config.artifacts import ArtifactsConfig
+from marvin.libs.config.artifacts import ArtifactFormat, ArtifactsConfig
 from marvin.services.artifacts.schema.llm import LLMArtifactSchema, LLMArtifactDataSchema
 from marvin.services.artifacts.service import ArtifactsService
 from marvin.services.cost.schema import CostReportSchema
@@ -29,6 +30,7 @@ async def test_save_creates_file(
             vcs_dir=tmp_path,
             llm_enabled=True,
             vcs_enabled=True,
+            format=ArtifactFormat.JSON,
         )
     )
 
@@ -114,6 +116,87 @@ async def test_save_handles_write_error(monkeypatch: pytest.MonkeyPatch, artifac
 
 
 @pytest.mark.asyncio
+async def test_save_default_yaml_creates_yaml_file(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        artifacts_service: ArtifactsService,
+):
+    monkeypatch.setattr(
+        settings,
+        "artifacts",
+        ArtifactsConfig(
+            llm_dir=tmp_path,
+            vcs_dir=tmp_path,
+            llm_enabled=True,
+            format=ArtifactFormat.YAML,
+        ),
+    )
+
+    artifact = LLMArtifactSchema(
+        data=LLMArtifactDataSchema(
+            prompt="p",
+            response="r",
+            prompt_system="sys",
+        )
+    )
+
+    out = await artifacts_service.save(
+        artifact=artifact,
+        artifacts_dir=tmp_path,
+        artifacts_enabled=True,
+    )
+
+    assert out is not None
+    file = tmp_path / f"{artifact.id}.yaml"
+    assert file.exists()
+
+    async with aiofiles.open(file, encoding="utf-8") as f:
+        data = yaml.safe_load(await f.read())
+
+    assert data["id"] == str(artifact.id)
+    assert data["type"] == artifact.type
+    assert data["data"]["prompt"] == "p"
+
+
+@pytest.mark.asyncio
+async def test_save_yaml_strips_control_chars(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        artifacts_service: ArtifactsService,
+):
+    monkeypatch.setattr(
+        settings,
+        "artifacts",
+        ArtifactsConfig(
+            llm_dir=tmp_path,
+            vcs_dir=tmp_path,
+            llm_enabled=True,
+            format=ArtifactFormat.YAML,
+        ),
+    )
+
+    artifact = LLMArtifactSchema(
+        data=LLMArtifactDataSchema(
+            prompt="a\x00b\x07c",
+            response="ok",
+            prompt_system="sys",
+        )
+    )
+
+    await artifacts_service.save(
+        artifact=artifact,
+        artifacts_dir=tmp_path,
+        artifacts_enabled=True,
+    )
+
+    file = tmp_path / f"{artifact.id}.yaml"
+    async with aiofiles.open(file, encoding="utf-8") as f:
+        data = yaml.safe_load(await f.read())
+
+    assert data["data"]["prompt"] == "abc"
+
+
+@pytest.mark.asyncio
 async def test_save_llm_creates_artifact(
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
@@ -122,7 +205,11 @@ async def test_save_llm_creates_artifact(
     monkeypatch.setattr(
         settings,
         "artifacts",
-        ArtifactsConfig(llm_enabled=True, llm_dir=tmp_path)
+        ArtifactsConfig(
+            llm_enabled=True,
+            llm_dir=tmp_path,
+            format=ArtifactFormat.JSON,
+        ),
     )
 
     aid = await artifacts_service.save_llm(
@@ -169,7 +256,11 @@ async def test_save_vcs_inline(
     monkeypatch.setattr(
         settings,
         "artifacts",
-        ArtifactsConfig(vcs_enabled=True, vcs_dir=tmp_path)
+        ArtifactsConfig(
+            vcs_enabled=True,
+            vcs_dir=tmp_path,
+            format=ArtifactFormat.JSON,
+        ),
     )
 
     comment = InlineCommentSchema(file="a.py", line=10, message="x")
@@ -196,7 +287,11 @@ async def test_save_vcs_summary(
     monkeypatch.setattr(
         settings,
         "artifacts",
-        ArtifactsConfig(vcs_enabled=True, vcs_dir=tmp_path),
+        ArtifactsConfig(
+            vcs_enabled=True,
+            vcs_dir=tmp_path,
+            format=ArtifactFormat.JSON,
+        ),
     )
 
     summary_comment = SummaryCommentSchema(text="hello")
@@ -223,7 +318,11 @@ async def test_save_vcs_inline_reply(
     monkeypatch.setattr(
         settings,
         "artifacts",
-        ArtifactsConfig(vcs_enabled=True, vcs_dir=tmp_path),
+        ArtifactsConfig(
+            vcs_enabled=True,
+            vcs_dir=tmp_path,
+            format=ArtifactFormat.JSON,
+        ),
     )
 
     reply = InlineCommentReplySchema(message="ok")
@@ -251,7 +350,11 @@ async def test_save_vcs_summary_reply(
     monkeypatch.setattr(
         settings,
         "artifacts",
-        ArtifactsConfig(vcs_enabled=True, vcs_dir=tmp_path),
+        ArtifactsConfig(
+            vcs_enabled=True,
+            vcs_dir=tmp_path,
+            format=ArtifactFormat.JSON,
+        ),
     )
 
     reply = SummaryCommentReplySchema(text="ok")
