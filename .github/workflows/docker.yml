@@ -11,6 +11,10 @@ on:
       tag:
         description: tag image
         type: string
+      latest:
+        description: tag image as latest
+        type: boolean
+        default: false
       push:
         description: push to registry
         type: boolean
@@ -23,6 +27,9 @@ on:
           - '3.12'
           - '3.13'
           - '3.14'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   manual:

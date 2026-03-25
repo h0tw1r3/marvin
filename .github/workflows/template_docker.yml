@@ -6,6 +6,9 @@ on:
       tag:
         type: string
         default: ""
+      latest:
+        type: boolean
+        default: false
       push:
         type: boolean
         default: false
@@ -22,9 +25,10 @@ env:
   REGISTRY_USERNAME: ${{ vars.DOCKER_USERNAME != '' && vars.DOCKER_USERNAME || github.actor }}
   REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD != '' && secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
   REPOSITORY: ${{ vars.DOCKER_REPOSITORY != '' && vars.DOCKER_REPOSITORY || github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  images:
+  build-amd64:
     timeout-minutes: 15
     permissions:
       contents: read
@@ -35,55 +39,185 @@ jobs:
       fail-fast: true
       matrix:
         fips: [false, true]
-    name: image (fips=${{ matrix.fips }})
+    name: build-amd64 (fips=${{ matrix.fips }})
+    outputs:
+      digest: ${{ steps.set_digest.outputs.digest }}
+      digest-fips: ${{ steps.set_digest.outputs.digest-fips }}
+    env:
+      FIPS_SUFFIX: ${{ matrix.fips && '-fips' || '' }}
     steps:
-      - if: inputs.push
-        name: Login to ${{ env.REGISTRY }}
+      - name: Login to ${{ env.REGISTRY }}
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.REGISTRY_USERNAME }}
           password: ${{ env.REGISTRY_PASSWORD }}
 
-      - name: Variables
-        run: |
-          echo "IMAGE_TAG=${{ env.REGISTRY }}/${{ env.REPOSITORY }}${{ matrix.fips && '-fips' || '' }}:${{ inputs.tag }}" >> $GITHUB_ENV
-
       - name: Checkout repository
-        id: checkout_repo
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build image
-        id: build_image
+      - name: Build and push image by digest (amd64)
+        id: push_image
         uses: docker/build-push-action@v7
         with:
           context: .
-          load: true
-          push: false
+          outputs: |
+            type=docker,name=marvin-ci-amd64${{ env.FIPS_SUFFIX }}
+            ${{ inputs.push && format('type=image,name={0}/{1},push-by-digest=true,name-canonical=true,push=true', env.REGISTRY, env.REPOSITORY) || '' }}
           provenance: ${{ contains(env.REGISTRY, 'docker') }}
-          tags: ${{ env.IMAGE_TAG }}
           platforms: linux/amd64
           build-args: |
             PYTHON_VERSION=${{ inputs.python }}
             ENABLE_FIPS=${{ matrix.fips }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPOSITORY }}:buildcache${{ env.FIPS_SUFFIX }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPOSITORY }}:buildcache${{ env.FIPS_SUFFIX }},mode=max
 
       - if: inputs.push
-        name: Build all platforms and Push to ${{ env.REGISTRY }}/${{ env.REPOSITORY }}
+        name: Set digest output
+        id: set_digest
+        run: |
+          echo "digest${{ env.FIPS_SUFFIX }}=${{ steps.push_image.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+      - if: inputs.push
+        name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.push_image.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - if: inputs.push
+        name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-amd64${{ env.FIPS_SUFFIX }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  build-arm64:
+    if: inputs.push
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      max-parallel: 2
+      fail-fast: true
+      matrix:
+        fips: [false, true]
+    name: build-arm64 (fips=${{ matrix.fips }})
+    outputs:
+      digest: ${{ steps.set_digest.outputs.digest }}
+      digest-fips: ${{ steps.set_digest.outputs.digest-fips }}
+    env:
+      FIPS_SUFFIX: ${{ matrix.fips && '-fips' || '' }}
+    steps:
+      - name: Login to ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push image by digest (arm64)
+        id: push_image
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: true
+          outputs: |
+            type=docker,name=marvin-ci-arm64${{ env.FIPS_SUFFIX }}
+            ${{ inputs.push && format('type=image,name={0}/{1},push-by-digest=true,name-canonical=true,push=true', env.REGISTRY, env.REPOSITORY) || '' }}
           provenance: ${{ contains(env.REGISTRY, 'docker') }}
-          tags: ${{ env.IMAGE_TAG }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           build-args: |
             PYTHON_VERSION=${{ inputs.python }}
             ENABLE_FIPS=${{ matrix.fips }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPOSITORY }}:buildcache${{ env.FIPS_SUFFIX }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPOSITORY }}:buildcache${{ env.FIPS_SUFFIX }},mode=max
+
+      - name: Set digest output
+        id: set_digest
+        run: |
+          echo "digest${{ env.FIPS_SUFFIX }}=${{ steps.push_image.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.push_image.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digest-arm64${{ env.FIPS_SUFFIX }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    if: inputs.push
+    needs: [build-amd64, build-arm64]
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      fail-fast: true
+      matrix:
+        fips: [false, true]
+    env:
+      FIPS_SUFFIX: ${{ matrix.fips && '-fips' || '' }}
+    name: merge (fips=${{ matrix.fips }})
+    steps:
+      - name: Login to ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Download amd64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digest-amd64${{ env.FIPS_SUFFIX }}
+          path: /tmp/digests/amd64
+
+      - name: Download arm64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digest-arm64${{ env.FIPS_SUFFIX }}
+          path: /tmp/digests/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Create and push manifest
+        run: |
+          REPO="${{ env.REGISTRY }}/${{ env.REPOSITORY }}"
+          IMAGE_TAG="${{ inputs.tag != '' && inputs.tag || github.sha }}"
+          DIGESTS=""
+          for f in /tmp/digests/amd64/* /tmp/digests/arm64/*; do
+            [ -f "$f" ] || continue
+            DIGESTS="$DIGESTS ${REPO}@sha256:$(basename "$f")"
+          done
+          # shellcheck disable=SC2086
+          docker buildx imagetools create \
+            ${{ inputs.latest && format('--tag {0}/{1}:latest', env.REGISTRY, env.REPOSITORY) || '' }} \
+            --tag ${REPO}:${IMAGE_TAG}${{ env.FIPS_SUFFIX }} \
+            ${DIGESTS}
