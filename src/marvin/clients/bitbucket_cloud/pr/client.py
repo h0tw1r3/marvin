@@ -2,7 +2,6 @@ from httpx import Response, QueryParams
 
 from marvin.clients.bitbucket_cloud.pr.schema.comments import (
     BitbucketCloudPRCommentSchema,
-    BitbucketCloudCommentContentSchema,
     BitbucketCloudGetPRCommentsQuerySchema,
     BitbucketCloudGetPRCommentsResponseSchema,
     BitbucketCloudUpdatePRCommentRequestSchema,
@@ -100,6 +99,21 @@ class BitbucketCloudPullRequestsHTTPClient(HTTPClient, BitbucketCloudPullRequest
             json=request.model_dump(by_alias=True, exclude_none=True),
         )
 
+    @handle_http_error(
+        client="BitbucketCloudPullRequestsHTTPClient",
+        exception=BitbucketCloudPullRequestsHTTPClientError
+    )
+    async def delete_comment_api(
+            self,
+            workspace: str,
+            repo_slug: str,
+            pull_request_id: str,
+            comment_id: str,
+    ) -> Response:
+        return await self.delete(
+            f"/repositories/{workspace}/{repo_slug}/pullrequests/{pull_request_id}/comments/{comment_id}"
+        )
+
     async def get_pull_request(
             self,
             workspace: str,
@@ -178,15 +192,14 @@ class BitbucketCloudPullRequestsHTTPClient(HTTPClient, BitbucketCloudPullRequest
             pull_request_id: str,
             comment_id: str
     ) -> None:
-        request = BitbucketCloudUpdatePRCommentRequestSchema(
-            content=BitbucketCloudCommentContentSchema(
-                raw="*(comment removed by marvin)*"
+        try:
+            await self.delete_comment_api(
+                workspace=workspace,
+                repo_slug=repo_slug,
+                pull_request_id=pull_request_id,
+                comment_id=comment_id,
             )
-        )
-        await self.update_comment_api(
-            workspace=workspace,
-            repo_slug=repo_slug,
-            pull_request_id=pull_request_id,
-            comment_id=comment_id,
-            request=request,
-        )
+        except BitbucketCloudPullRequestsHTTPClientError as err:
+            if err.status_code == 404:
+                return
+            raise
