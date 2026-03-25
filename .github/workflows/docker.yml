@@ -2,6 +2,7 @@ name: Docker
 run-name: >
   Build
   ${{ inputs.tag && format('tag={0}', inputs.tag) || '' }}
+  ${{ inputs.latest && format('latest={0}', inputs.latest) || '' }}
   ${{ inputs.python && format('python={0}', inputs.python) || '' }}
   ${{ inputs.push && format('push={0}', inputs.push) || ''}}
 
