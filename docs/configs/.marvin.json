@@ -124,6 +124,7 @@
   "artifacts": {
     "llm_dir": "./artifacts/llm",
     "vcs_dir": "./artifacts/vcs",
+    "format": "yaml",
     "llm_enabled": false,
     "vcs_enabled": false
   }

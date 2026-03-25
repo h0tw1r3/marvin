@@ -34,6 +34,13 @@ You can override default config locations using environment variables:
 
 By default, configs are loaded from the **project root**.
 
+## Artifacts serialization
+
+When configuring artifacts:
+
+- `ARTIFACTS__FORMAT=yaml` (default): human-readable debug output; sanitizes control characters and is not byte-faithful
+- `ARTIFACTS__FORMAT=json`: exact/lossless output for machine parsing and archival fidelity
+
 ---
 
 ## 📘 Examples

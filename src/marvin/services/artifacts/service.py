@@ -6,6 +6,7 @@ from marvin.config import settings
 from marvin.libs.logger import get_logger
 from marvin.services.artifacts.schema.base import BaseArtifactSchema
 from marvin.services.artifacts.schema.llm import LLMArtifactSchema, LLMArtifactDataSchema
+from marvin.services.artifacts.serialization import artifact_file_suffix, dumps_artifact
 from marvin.services.artifacts.schema.vcs import (
     VCSInlineArtifactSchema,
     VCSInlineArtifactDataSchema,
@@ -38,11 +39,13 @@ class ArtifactsService(ArtifactsServiceProtocol):
             logger.debug(f"Skipping {artifact.type} artifact: saving disabled")
             return None
 
-        artifact_file = artifacts_dir / f"{artifact.id}.json"
+        fmt = settings.artifacts.format
+        suffix = artifact_file_suffix(fmt)
+        artifact_file = artifacts_dir / f"{artifact.id}{suffix}"
 
         try:
             async with aiofiles.open(artifact_file, "w", encoding="utf-8") as aiofile:
-                await aiofile.write(artifact.model_dump_json(indent=2))
+                await aiofile.write(dumps_artifact(artifact, fmt))
 
             logger.debug(f"Saved {artifact.type} → {artifact_file}")
             return str(artifact.id)

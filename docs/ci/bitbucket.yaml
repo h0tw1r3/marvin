@@ -73,6 +73,8 @@ definitions:
           LOGGER__FORMAT: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {extra[logger_name]} | {message}"
           ARTIFACTS__LLM_DIR: "./artifacts/llm"
           ARTIFACTS__VCS_DIR: "./artifacts/vcs"
+          # yaml is readable but lossy; use json for exact/lossless preservation.
+          ARTIFACTS__FORMAT: "yaml"
           ARTIFACTS__LLM_ENABLED: "false"
           ARTIFACTS__VCS_ENABLED: "false"
 

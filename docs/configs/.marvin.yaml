@@ -582,6 +582,11 @@ artifacts:
   # Created automatically if missing.
   vcs_dir: ./artifacts/vcs
 
+  # Serialization for on-disk artifacts: json | yaml
+  # json = exact/lossless machine-friendly dumps.
+  # yaml = display-oriented and lossy (sanitizes control characters; not byte-faithful).
+  format: yaml
+
   # Enable saving LLM artifacts.
   llm_enabled: false
 
