@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from marvin.libs.config.http import HTTPClientWithTokenConfig
+from marvin.libs.config.token_type import TokenType
 
 
 class GitLabPipelineConfig(BaseModel):
@@ -9,4 +10,4 @@ class GitLabPipelineConfig(BaseModel):
 
 
 class GitLabHTTPClientConfig(HTTPClientWithTokenConfig):
-    pass
+    api_token_type: TokenType = TokenType.AUTO

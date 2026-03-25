@@ -2,7 +2,7 @@ from httpx import Response
 
 from marvin.config import settings
 from marvin.libs.config.vcs.azure_devops import AzureDevOpsTokenType
-from marvin.libs.http.authentication.basic import build_basic_credentials
+from marvin.libs.http.authentication import build_azure_devops_pat_credentials
 from marvin.libs.logger import get_logger
 
 logger = get_logger("AZURE_DEVOPS_TOOLS")
@@ -35,6 +35,6 @@ def build_azure_devops_headers() -> dict[str, str]:
             return {"Authorization": f"Bearer {token_value}"}
 
         case AzureDevOpsTokenType.PAT:
-            return {"Authorization": f"Basic {build_basic_credentials(token_value)}"}
+            return {"Authorization": f"Basic {build_azure_devops_pat_credentials(token_value)}"}
 
     raise ValueError(f"Unsupported Azure DevOps token type: {token_type}")

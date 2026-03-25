@@ -10,4 +10,9 @@ class GiteaPipelineConfig(BaseModel):
 
 
 class GiteaHTTPClientConfig(HTTPClientWithTokenConfig):
-    pass
+    """Gitea HTTP client config.
+
+    Gitea uses the ``token`` auth scheme for all API calls. Basic auth
+    is only supported for generating API tokens, not for direct API
+    calls, so there is no ``api_token_type`` field here.
+    """

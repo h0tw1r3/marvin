@@ -1,6 +1,7 @@
 from httpx import AsyncClient, AsyncHTTPTransport
 
 from marvin.clients.gitea.pr.client import GiteaPullRequestsHTTPClient
+from marvin.clients.gitea.tools import build_gitea_headers
 from marvin.config import settings
 from marvin.libs.http.event_hooks.logger import LoggerEventHook
 from marvin.libs.http.transports.retry import RetryTransport
@@ -26,7 +27,7 @@ def get_gitea_http_client() -> GiteaHTTPClient:
     client = AsyncClient(
         verify=settings.vcs.http_client.verify,
         timeout=settings.vcs.http_client.timeout,
-        headers={"Authorization": f"token {settings.vcs.http_client.api_token_value}"},
+        headers=build_gitea_headers(),
         base_url=settings.vcs.http_client.api_url_value,
         transport=retry_transport,
         event_hooks={
