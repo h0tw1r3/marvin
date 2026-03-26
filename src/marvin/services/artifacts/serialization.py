@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from typing import TYPE_CHECKING, Any
 
@@ -33,8 +34,20 @@ def _strip_control_chars(text: str) -> str:
 
 
 def clean_multiline_string(text: str) -> str:
-    """Normalize string content before YAML literal block output."""
-    return _strip_control_chars(text)
+    """Normalize string content before YAML literal block output.
+
+    Strips control characters and trailing whitespace from each line. Trailing
+    whitespace on a line prevents PyYAML from choosing literal block style (``|``)
+    because block scalars would silently discard those spaces. Since YAML artifacts
+    are display-oriented (explicitly lossy), stripping trailing spaces is acceptable.
+    """
+    cleaned = _strip_control_chars(text)
+    lines = [line.rstrip() for line in cleaned.splitlines()]
+    result = "\n".join(lines)
+    # Preserve a trailing newline if the original had one.
+    if cleaned.endswith("\n") and not result.endswith("\n"):
+        result += "\n"
+    return result
 
 
 class ArtifactYamlDumper(yaml.SafeDumper):
@@ -57,8 +70,26 @@ ArtifactYamlDumper.add_representer(str, _represent_str_for_artifact_yaml)
 
 
 def humanize_payload_for_yaml(value: Any) -> Any:
-    """Recursively sanitize all strings in JSON-like payloads for readable YAML dumps."""
+    """Recursively sanitize all strings in JSON-like payloads for readable YAML dumps.
+
+    Strings that look like JSON objects or arrays (delimited by ``{}``) or ``[]``)
+    are parsed and expanded into native Python structures so they render as proper
+    YAML instead of opaque single-line strings. Only object/array JSON is expanded;
+    bare scalar JSON (numbers, booleans, null) is left as-is to avoid unintended
+    type coercion.
+    """
     if isinstance(value, str):
+        stripped = value.strip()
+        if (
+            (stripped.startswith("{") and stripped.endswith("}"))
+            or (stripped.startswith("[") and stripped.endswith("]"))
+        ):
+            try:
+                parsed = json.loads(value)
+                # Recurse so any nested JSON strings are also expanded.
+                return humanize_payload_for_yaml(parsed)
+            except (json.JSONDecodeError, ValueError):
+                pass
         return _strip_control_chars(value)
     if isinstance(value, dict):
         return {k: humanize_payload_for_yaml(v) for k, v in value.items()}
