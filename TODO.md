@@ -4,13 +4,14 @@
 
 - **langchain integration** — Refactor the codebase to leverage langchain's abstractions for agents
   to simplify implementation and improve maintainability.
-- **Multi-agent support** — Extend the framework to support multiple agents that can collaborate on tasks, share
-  information, and coordinate actions.
+- **Committee** — Implement a committee review process where multiple agents can review and critique each
+  other's outputs to improve the quality of results and reduce bias.
 
 ## Features
 
 - **Bedrock IRSA** - IRSA-enabled AWS Bedrock integration for LLM access without managing credentials, using boto3
   and IAM roles.
+- **External tools** — Support for MCP servers, allowing agents to call external APIs and services during execution.
 
 ## Config / Settings
 
@@ -37,3 +38,8 @@
   readability and automate changelog generation.
 - **Type checking** — Integrate a static type checker like `pyrefly` to catch type-related errors during development
   and improve code quality.
+
+## Research
+
+- **Agent memory** — Would adding support for agent memory to enable context retention of the pull-request improve
+  performance and/or quality of results?
