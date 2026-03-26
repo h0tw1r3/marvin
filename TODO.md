@@ -12,6 +12,8 @@
 - **Bedrock IRSA** - IRSA-enabled AWS Bedrock integration for LLM access without managing credentials, using boto3
   and IAM roles.
 - **External tools** — Support for MCP servers, allowing agents to call external APIs and services during execution.
+- **Local review** - Review a local branch as it would an external pull request, enabling smoke testing and
+  iteration without needing to push to a remote repository.
 
 ## Config / Settings
 
