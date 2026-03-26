@@ -4,6 +4,8 @@
 
 - **langchain integration** — Refactor the codebase to leverage langchain's abstractions for agents
   to simplify implementation and improve maintainability.
+- **Multi-agent support** — Extend the framework to support multiple agents that can collaborate on tasks, share
+  information, and coordinate actions.
 
 ## Features
 
@@ -33,3 +35,5 @@
 
 - **Commit message linting** — Enforce a consistent commit message format (e.g., Conventional Commits) to improve
   readability and automate changelog generation.
+- **Type checking** — Integrate a static type checker like `pyrefly` to catch type-related errors during development
+  and improve code quality.
