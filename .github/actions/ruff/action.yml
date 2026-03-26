@@ -1,8 +1,8 @@
 name: Lint
+description: Lint Python code using Ruff.
 
 inputs:
   python-version:
-    type: string
     default: "3.12"
     required: false
 

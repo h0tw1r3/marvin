@@ -1,12 +1,11 @@
 name: Test
+description: Run tests with coverage and upload results to Codecov
 
 inputs:
   python-version:
-    type: string
     default: "3.12"
     required: false
   codecov-token:
-    type: string
     required: false
 
 runs:
