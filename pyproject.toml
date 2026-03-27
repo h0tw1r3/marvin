@@ -66,7 +66,8 @@ marvin = "marvin.cli.main:app"
 
 [dependency-groups]
 lint = [
-    "ruff"
+    "ruff",
+    "pyrefly"
 ]
 test = [
     "pytest",
@@ -114,6 +115,10 @@ select = ["E", "F", "W", "I", "N", "UP", "B", "A", "TC"]
 ignore = [
     "I001"  # isort found an import in the wrong position (handled by isort)
 ]
+
+[tool.pyrefly]
+project_includes = ["src"]
+project_excludes = ["tests"]
 
 [tool.pymarkdown]
 extensions.markdown-tables.enabled = true
