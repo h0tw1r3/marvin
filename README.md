@@ -41,6 +41,11 @@ reference environment variables with `$VAR`, `${VAR}`, `${VAR:-default}`, and
 more. See [docs/configs/README.md](docs/configs/README.md) for full syntax and
 semantics.
 
+## Providers
+
+See [docs/clients/](docs/clients/) for a list of supported LLM and VCS providers
+and details on their configuration.
+
 ## Notice
 
 [Marvin], Multi-model Agentic Reviewers for Virtually Intelligent Notations  

@@ -1,3 +1,4 @@
+import asyncio
 from urllib.parse import quote
 
 from httpx import Response, AsyncHTTPTransport, AsyncClient
@@ -5,6 +6,7 @@ from httpx import Response, AsyncHTTPTransport, AsyncClient
 from marvin.clients.bedrock.schema import BedrockChatRequestSchema, BedrockChatResponseSchema
 from marvin.clients.bedrock.types import BedrockHTTPClientProtocol
 from marvin.config import settings
+from marvin.libs.aws.irsa import assume_irsa_credentials
 from marvin.libs.aws.signv4 import sign_aws_v4, AwsSigV4Config, AwsCredentials
 from marvin.libs.http.client import HTTPClient
 from marvin.libs.http.event_hooks.logger import LoggerEventHook
@@ -18,6 +20,45 @@ class BedrockHTTPClientError(HTTPClientError):
 
 
 class BedrockHTTPClient(HTTPClient, BedrockHTTPClientProtocol):
+    def __init__(self, client: AsyncClient) -> None:
+        super().__init__(client)
+        self._cached_credentials: AwsCredentials | None = None
+        self._lock = asyncio.Lock()
+
+    async def _get_credentials(self) -> AwsCredentials:
+        # Fast path: credentials already cached.
+        if self._cached_credentials is not None:
+            return self._cached_credentials
+
+        # Slow path: acquire lock and populate cache exactly once.
+        # Both static and IRSA paths are inside the lock so concurrent callers
+        # wait rather than racing to call STS.
+        async with self._lock:
+            if self._cached_credentials is not None:
+                return self._cached_credentials
+
+            cfg = settings.llm.http_client
+            # Static credentials take precedence. IRSA is used when no static
+            # credentials are configured.
+            if cfg.access_key and cfg.secret_key:
+                self._cached_credentials = AwsCredentials(
+                    access_key=cfg.access_key,
+                    secret_key=cfg.secret_key,
+                    session_token=cfg.session_token,
+                )
+            else:
+                # Delegates fully to assume_irsa_credentials, which validates env vars
+                # and raises IRSACredentialsError with actionable messages if anything
+                # is missing.
+                self._cached_credentials = await assume_irsa_credentials(
+                    region=cfg.region,
+                    verify=cfg.verify,
+                    proxy_url=str(cfg.proxy_url_value) if cfg.proxy_url_value else None,
+                    timeout=cfg.timeout,
+                )
+
+        return self._cached_credentials
+
     @handle_http_error(client="BedrockHTTPClient", exception=BedrockHTTPClientError)
     async def chat_api(self, request: BedrockChatRequestSchema) -> Response:
         body = request.model_dump_json(exclude_none=True)
@@ -26,6 +67,8 @@ class BedrockHTTPClient(HTTPClient, BedrockHTTPClientProtocol):
         route = f"/model/{model}/invoke"
         api_url = settings.llm.http_client.api_url_value.rstrip('/')
         full_url = f"{api_url}{route}"
+
+        credentials = await self._get_credentials()
 
         return await self.post(
             url=route,
@@ -37,11 +80,7 @@ class BedrockHTTPClient(HTTPClient, BedrockHTTPClientProtocol):
                     region=settings.llm.http_client.region,
                     service="bedrock"
                 ),
-                aws_credentials=AwsCredentials(
-                    access_key=settings.llm.http_client.access_key,
-                    secret_key=settings.llm.http_client.secret_key,
-                    session_token=settings.llm.http_client.session_token
-                )
+                aws_credentials=credentials,
             ),
             content=body
         )
