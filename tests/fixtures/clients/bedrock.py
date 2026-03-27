@@ -74,3 +74,21 @@ def bedrock_http_client_config(monkeypatch: pytest.MonkeyPatch):
         ),
     )
     monkeypatch.setattr(settings, "llm", fake_config)
+
+
+@pytest.fixture
+def bedrock_irsa_config(monkeypatch: pytest.MonkeyPatch):
+    """Config with no static credentials - expects IRSA env vars at runtime."""
+    fake_config = BedrockLLMConfig(
+        meta=BedrockMetaConfig(),
+        provider=LLMProvider.BEDROCK,
+        http_client=BedrockHTTPClientConfig(
+            timeout=10,
+            api_url=HttpUrl("https://bedrock-runtime.fake.aws"),
+            region="us-east-1",
+        ),
+    )
+    monkeypatch.setattr(settings, "llm", fake_config)
+    monkeypatch.delenv("AWS_WEB_IDENTITY_TOKEN_FILE", raising=False)
+    monkeypatch.delenv("AWS_ROLE_ARN", raising=False)
+    monkeypatch.delenv("AWS_ROLE_SESSION_NAME", raising=False)
