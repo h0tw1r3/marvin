@@ -29,7 +29,6 @@ runs:
       with:
         token: ${{ inputs.codecov-token }}
         files: ./coverage.xml
-        verbose: true
 
     - if: ${{ !cancelled() && inputs.codecov-token != '' }}
       name: Upload test results
@@ -37,4 +36,3 @@ runs:
       with:
         report_type: test_results
         token: ${{ inputs.codecov-token }}
-        verbose: true
