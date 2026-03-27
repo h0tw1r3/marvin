@@ -45,6 +45,12 @@ repos:
       - id: pretty-format-yaml
         args: [--autofix, --indent, '2', --offset, '2', --preserve-quotes]
 
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.7
+    hooks:
+      - id: ruff
+        args: [--fix]
+
   - repo: https://github.com/jackdewinter/pymarkdown
     rev: v0.9.36
     hooks:
