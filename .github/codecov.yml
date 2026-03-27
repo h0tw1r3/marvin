@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        # Compare against the base commit; fail if coverage drops more than 0.5%
+        # (allows for floating-point rounding without masking real regressions).
+        target: auto
+        threshold: 0.5%
+    patch:
+      default:
+        # Every changed line in a PR must be covered.
+        target: 100%
+
+# Suppress PR comments - coverage results appear only in GitHub Checks.
+comment: false
