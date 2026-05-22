@@ -529,6 +529,7 @@ review:
   # Tags used to mark AI-generated comments in MR.
   inline_tag: "#marvin-inline"
   inline_reply_tag: "#marvin-inline-reply"
+  inline_fallback_tag: "#marvin-inline-fallback"
   summary_tag: "#marvin-summary"
   summary_reply_tag: "#marvin-summary-reply"
 
