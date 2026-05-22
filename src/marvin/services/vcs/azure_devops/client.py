@@ -169,9 +169,29 @@ class AzureDevOpsVCSClient(VCSClientProtocol):
             logger.exception(f"Failed to create general comment in {self.pull_request_ref}: {error}")
             raise
 
+    async def _resolve_change_tracking_id(self, file: str) -> int:
+        files = await self.http_client.pr.get_files(
+            organization=self.organization,
+            project=self.project,
+            repository_id=self.repository_id,
+            pull_request_id=self.pull_request_id,
+            iteration_id=self.iteration_id,
+        )
+
+        for change in files.change_entries:
+            if change.item and change.item.path == file and change.change_tracking_id is not None:
+                return change.change_tracking_id
+
+        logger.warning(
+            f"Failed to resolve change_tracking_id for {file} in {self.pull_request_ref}. "
+            f"Falling back to default change_tracking_id=1"
+        )
+        return 1
+
     async def create_inline_comment(self, file: str, line: int, message: str) -> None:
         try:
             logger.info(f"Posting inline comment in {self.pull_request_ref} at {file}:{line}: {message}")
+            change_tracking_id = await self._resolve_change_tracking_id(file)
 
             request = AzureDevOpsCreatePRThreadRequestSchema(
                 comments=[AzureDevOpsCreatePRCommentRequestSchema(content=message)],
@@ -185,7 +205,7 @@ class AzureDevOpsVCSClient(VCSClientProtocol):
                         first_comparing_iteration=self.iteration_id,
                         second_comparing_iteration=self.iteration_id,
                     ),
-                    change_tracking_id=1,
+                    change_tracking_id=change_tracking_id,
                 ),
             )
 
