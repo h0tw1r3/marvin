@@ -92,7 +92,7 @@ jobs:
 
       - if: inputs.push
         name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: digest-amd64${{ env.FIPS_SUFFIX }}
           path: /tmp/digests/*
@@ -161,7 +161,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: digest-arm64${{ env.FIPS_SUFFIX }}
           path: /tmp/digests/*
@@ -193,13 +193,13 @@ jobs:
           password: ${{ env.REGISTRY_PASSWORD }}
 
       - name: Download amd64 digest
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: digest-amd64${{ env.FIPS_SUFFIX }}
           path: /tmp/digests/amd64
 
       - name: Download arm64 digest
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: digest-arm64${{ env.FIPS_SUFFIX }}
           path: /tmp/digests/arm64
