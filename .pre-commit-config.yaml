@@ -47,13 +47,13 @@ repos:
         args: [--autofix, --indent, '2', --offset, '2', --preserve-quotes]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.7
+    rev: v0.15.16
     hooks:
       - id: ruff
         args: [--fix]
 
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: v0.9.36
+    rev: 7b610f7cefba2c8360e7dd5d82d25e0dcd3fdfd2
     hooks:
       - id: pymarkdown
 
@@ -64,7 +64,7 @@ repos:
         args: ['--baseline', '.secrets.baseline']
 
   - repo: https://github.com/maxwinterstein/shfmt-py
-    rev: v3.12.0.1
+    rev: v4.0.0
     hooks:
       - id: shfmt
         args: [-w, --indent=4, --case-indent, --binary-next-line]
@@ -75,7 +75,7 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
-    rev: v1.7.11.24
+    rev: v1.7.12.24
     hooks:
       - id: actionlint
         additional_dependencies: [pyflakes>=3.0.1, shellcheck-py>=0.9.0.5]

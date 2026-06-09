@@ -124,10 +124,10 @@ extensions.markdown-tables.enabled = true
 enabled = true
 code_blocks = false
 line_length = 160
+table_line_length = 300
 
 [tool.pymarkdown.plugins.per-file-ignores]
 "docs/troubleshooting/*.md" = "MD024"
-"docs/prompts/**/*.md" = "MD001,MD004,MD007,MD013,MD026"
+"docs/prompts/**/*.md" = "MD001,MD004,MD007,MD026"
 "src/marvin/prompts/*.md" = "MD001,MD007,MD041"
-".github/*.md" = "MD041"
 ".github/**/*.md" = "MD036,MD022,MD041"
