@@ -53,7 +53,7 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/jackdewinter/pymarkdown
-    rev: 7b610f7cefba2c8360e7dd5d82d25e0dcd3fdfd2
+    rev: 29f9248c3e1318803e3a172da326e9fc57753b28
     hooks:
       - id: pymarkdown
 
